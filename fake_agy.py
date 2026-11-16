@@ -75,8 +75,14 @@ if opt("--input-format") == "stream-json":
         raw_roots.append(opt("--add-dir"))
     roots = [norm(r_) for r_ in raw_roots]
 
-    print(json.dumps({"event": "init", "init": {"cwd": cwd, "tools": ["read_file", "write_file"],
-                                                 "permission_mode": effective_mode}}))
+    print(json.dumps({
+        "event": "init",
+        "init": {
+            "cwd": cwd,
+            "tools": ["read_file", "write_file"],
+            "permission_mode": effective_mode,
+        },
+    }))
     m = re.search(r"<<<TASKS\n(.*?)\nTASKS>>>", prompt, re.DOTALL)
     if not m:
         so = {"pong": "PONG"}
@@ -169,8 +175,14 @@ if opt("--input-format") == "stream-json":
                 fh.write("// unexpected file in staging\n")
 
         so = {"results": results}
-    print(json.dumps({"event": "result", "result": {"status": "SUCCESS", "response": "done",
-                                                      "structured_output": so}}))
+    print(json.dumps({
+        "event": "result",
+        "result": {
+            "status": "SUCCESS",
+            "response": "done",
+            "structured_output": so,
+        },
+    }))
     sys.exit(1 if os.environ.get("FAKE_NONZERO_RC") == "1" else 0)
 
 print("no mode matched", file=sys.stderr)
