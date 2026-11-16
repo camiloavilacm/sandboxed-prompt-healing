@@ -49,7 +49,7 @@ class TestAgyProbe(unittest.TestCase):
         ]
         if extra_args:
             cmd.extend(extra_args)
-        return subprocess.run(cmd, capture_output=True, text=True, env=env)
+        return subprocess.run(cmd, check=False, capture_output=True, text=True, env=env)
 
     def test_clean_baseline(self):
         res = self._run_probe()

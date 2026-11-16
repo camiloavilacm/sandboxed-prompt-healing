@@ -27,9 +27,9 @@ from agy_probe import load_contract
 def get_current_agy_version(agy_cmd: str) -> str:
     """Retrieve installed agy version string."""
     try:
-        r = subprocess.run([*agy_cmd.split(), "--version"], capture_output=True, text=True, timeout=10)
+        r = subprocess.run([*agy_cmd.split(), "--version"], check=False, capture_output=True, text=True, timeout=10)
         return (r.stdout + r.stderr).strip()
-    except Exception as exc:
+    except (OSError, subprocess.SubprocessError) as exc:
         return f"unknown ({exc})"
 
 
@@ -114,7 +114,7 @@ def run_healing_session(
         stderr=subprocess.PIPE,
         text=True,
     )
-    stdout, stderr = p.communicate(input=stdin_data, timeout=timeout)
+    _stdout, _stderr = p.communicate(input=stdin_data, timeout=timeout)
     duration = round(time.monotonic() - t0, 1)
 
     # 4. Objective Ground-Truth Evaluation
@@ -167,7 +167,7 @@ def main() -> int:
         print(f"  Duration:           {res['duration_seconds']}s")
         print(f"  Exit Code:          {res['exit_code']}")
         return 0 if res["success"] else 1
-    except Exception as exc:
+    except (RuntimeError, ValueError, OSError, subprocess.SubprocessError) as exc:
         print(f"[Harness Error] {exc}", file=sys.stderr)
         return 2
 

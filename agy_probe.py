@@ -43,7 +43,7 @@ FLAGS = [
 ]
 UNKNOWN_FLAG = re.compile(
     r"not defined|unknown (flag|option|shorthand)|unrecognized (flag|option)|invalid (flag|option)",
-    re.I,
+    re.IGNORECASE,
 )
 
 EXPECT = {
@@ -173,7 +173,7 @@ def detect_repo_root(explicit_repo: str | None, launch_cwd: Path) -> Path | None
 
 def flag_advertised(flag: str, help_text: str) -> bool:
     pattern = r"(?:^|[\s,|\[])" + re.escape(flag) + r"(?:$|[\s,=\]|])"
-    return bool(re.search(pattern, help_text, re.M))
+    return bool(re.search(pattern, help_text, re.MULTILINE))
 
 
 def run(argv, cwd, stdin_text=None, timeout=240, env=None) -> dict:
@@ -643,7 +643,7 @@ def run_variant(agy, caps, args, repo_root, variant, idx, outdir, extra, worlds)
         "effective_mode": ev["init_permission_mode"], "init_cwd": ev["init_cwd"],
         "tool_names": ev["init_tools"],
         "mcp_like_tools": [t for t in ev["init_tools"] if "mcp" in t.lower()],
-        "command_like_tools": [t for t in ev["init_tools"] if re.search(r"command|shell|bash|exec", t, re.I)],
+        "command_like_tools": [t for t in ev["init_tools"] if re.search(r"command|shell|bash|exec", t, re.IGNORECASE)],
         "world": w,
     }
 
@@ -752,8 +752,7 @@ def generate_markdown_summary(report: dict, runs: list) -> str:
             "| Task ID | Expected | " + " | ".join(f"{r['variant']}-{r['run']}" for r in runs) + " |",
             "| :--- | :---: | " + " | ".join(":---:" for _ in runs) + " |",
         ])
-        for tid in EXPECT:
-            exp = EXPECT[tid]
+        for tid, exp in EXPECT.items():
             cols = [f"`{r.get('verdicts', {}).get(tid, '-')}`" for r in runs]
             lines.append(f"| `{tid}` | `{exp}` | " + " | ".join(cols) + " |")
 
@@ -804,8 +803,8 @@ def main(argv=None) -> int:
     try:
         extra = json.loads(args.extra_settings)
         if not isinstance(extra, dict):
-            raise ValueError("--extra-settings must be a JSON object")
-    except (ValueError, json.JSONDecodeError) as exc:
+            raise TypeError("--extra-settings must be a JSON object")
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
         print(f"invalid --extra-settings: {exc}", file=sys.stderr)
         return 3
     variants = [v.strip().upper() for v in args.variants.split(",") if v.strip()]
@@ -980,9 +979,9 @@ def main(argv=None) -> int:
             hdr_str = " ".join(f"{h:<8}" for h in headers)
             print(f"{'Task ID':<20} {'Expected':<10} {hdr_str}")
             print("-" * (32 + 9 * len(runs)))
-            for tid in EXPECT:
+            for tid, exp in EXPECT.items():
                 v_str = " ".join(f"{r.get('verdicts', {}).get(tid, '-'):<8}" for r in runs)
-                print(f"{tid:<20} {EXPECT[tid]:<10} {v_str}")
+                print(f"{tid:<20} {exp:<10} {v_str}")
 
         if chosen:
             w = next(r_["world"] for r_ in runs if r_["variant"] == chosen)

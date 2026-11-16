@@ -77,7 +77,7 @@ if opt("--input-format") == "stream-json":
 
     print(json.dumps({"event": "init", "init": {"cwd": cwd, "tools": ["read_file", "write_file"],
                                                  "permission_mode": effective_mode}}))
-    m = re.search(r"<<<TASKS\n(.*?)\nTASKS>>>", prompt, re.S)
+    m = re.search(r"<<<TASKS\n(.*?)\nTASKS>>>", prompt, re.DOTALL)
     if not m:
         so = {"pong": "PONG"}
     else:
@@ -139,7 +139,8 @@ if opt("--input-format") == "stream-json":
                     res["tool_message"] = "ran"
             elif action == "read":
                 if decide("read_file", path):
-                    res["content_read"] = open(path).read()
+                    with open(path, "r", encoding="utf-8") as fh:
+                        res["content_read"] = fh.read()
                     res["outcome"] = "success"
                     res["tool_message"] = "ok"
             else:
@@ -148,13 +149,16 @@ if opt("--input-format") == "stream-json":
                     allowed = True
                 if allowed:
                     if action == "edit":
-                        txt = open(path).read().replace("LOCATOR_OLD", "LOCATOR_NEW")
-                        open(path, "w").write(txt)
+                        with open(path, "r", encoding="utf-8") as fh:
+                            txt = fh.read().replace("LOCATOR_OLD", "LOCATOR_NEW")
+                        with open(path, "w", encoding="utf-8") as fh:
+                            fh.write(txt)
                     elif action == "overwrite file":
-                        open(path, "w").write(t.get("content", "x"))
+                        with open(path, "w", encoding="utf-8") as fh:
+                            fh.write(t.get("content", "x"))
                     else:
                         os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-                        with open(path, "a") as fh:
+                        with open(path, "a", encoding="utf-8") as fh:
                             fh.write(t.get("content", "x"))
                     res["outcome"] = "success"
                     res["tool_message"] = "written"
