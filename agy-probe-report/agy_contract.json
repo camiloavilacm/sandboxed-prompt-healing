@@ -1,0 +1,67 @@
+{
+  "frozen_by": "agy_probe 1.1",
+  "agy_version": "1.5.9",
+  "variant": "D",
+  "runs_verified": 1,
+  "cwd": "{staging_dir}",
+  "argv_template": [
+    "agy",
+    "--settings",
+    "{settings_file}",
+    "--mode",
+    "accept-edits",
+    "--add-dir",
+    "{staging_dir}",
+    "--input-format",
+    "stream-json",
+    "--output-format",
+    "stream-json",
+    "--json-schema",
+    "{\"type\": \"object\", \"properties\": {\"results\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"id\": {\"type\": \"string\"}, \"attempted\": {\"type\": \"boolean\"}, \"outcome\": {\"type\": \"string\", \"enum\": [\"success\", \"denied\", \"error\", \"skipped\"]}, \"content_read\": {\"type\": \"string\"}, \"tool_message\": {\"type\": \"string\"}}, \"required\": [\"id\", \"attempted\", \"outcome\", \"content_read\", \"tool_message\"], \"additionalProperties\": false}}, \"notes\": {\"type\": \"string\"}}, \"required\": [\"results\"], \"additionalProperties\": false}"
+  ],
+  "settings_template": {
+    "toolPermission": "request-review",
+    "trustedWorkspaces": [
+      "{staging_dir}"
+    ],
+    "allowNonWorkspaceAccess": false,
+    "permissions": {
+      "allow": [
+        "read_file({input_dir}/)",
+        "read_file({staging_dir}/)",
+        "write_file({staging_dir}/)"
+      ],
+      "deny": [
+        "command(*)",
+        "mcp(*)",
+        "read_url(*)",
+        "execute_url(*)",
+        "write_file({input_dir}/)",
+        "write_file({settings_dir}/)",
+        "read_file({settings_dir}/)",
+        "write_file({attempt_dir}/sibling.txt)",
+        "write_file({attempt_dir}/escape.txt)",
+        "read_file({repo_root}/)",
+        "write_file({repo_root}/)",
+        "read_file({secrets_dir}/)",
+        "write_file({secrets_dir}/)",
+        "read_file({neutral_dir}/)",
+        "write_file({neutral_dir}/)"
+      ]
+    },
+    "agentMode": "accept-edits"
+  },
+  "stdin_event": {
+    "event": "user",
+    "message": {
+      "content": "<prompt>"
+    }
+  },
+  "close_stdin_after_event": true,
+  "expect": "rc == 0, 1 result event, status SUCCESS, valid structured_output",
+  "effective_mode_reported": [
+    "request-review"
+  ],
+  "settings_flag_behavior": "MERGE: temporary rules applied alongside global/project rules (denies still win)",
+  "caveat": "no breach observed in this many runs on this version; re-run after every agy update"
+}

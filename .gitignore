@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Linter caches
+.ruff_cache/
+.mypy_cache/
+
+# Ephemeral probe execution reports (exclude local run output, keep contract templates)
+agy-probe-report/runs/
+agy-probe-report/report.json
+agy-probe-report/SUMMARY.md
+agy-probe-fake-report/
+prompt-healing-*
+
+# OS & Editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
